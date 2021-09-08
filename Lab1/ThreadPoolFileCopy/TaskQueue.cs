@@ -10,16 +10,16 @@ namespace Lab1
     public class TaskQueue
     {
         private List<Thread> pool = new List<Thread>();
+        private static List<bool> inWorkThreads = new List<bool>();
         public ConcurrentQueue<string> taskQueue = new ConcurrentQueue<string>();
 
         public delegate void TaskDelegate(string param1, string param2, string param3);
 
-        public string source, dest;
-        public int copiedFiles = 0;
+        public string dest;
+        public static int copiedFiles = 0;
 
-        public TaskQueue(string dource, string dest, int threadsCount)
+        public TaskQueue(string dest, int threadsCount)
         {
-            this.source = source;
             this.dest = dest;
             for (int i = 0; i < threadsCount; i++)
             {
@@ -27,6 +27,7 @@ namespace Lab1
                 thread.Name = i.ToString();
                 thread.IsBackground = true;
                 pool.Add(thread);
+                inWorkThreads.Add(false);
                 thread.Start();
             }
         }
@@ -44,15 +45,22 @@ namespace Lab1
             }
         }
 
+        public bool CheckWorkThreads()
+        {
+            return inWorkThreads.Contains(true);
+        }
+
         private void ProcessTask()
         {
+            inWorkThreads[Convert.ToInt32(Thread.CurrentThread.Name)] = true;
             while (Thread.CurrentThread.IsBackground)
             {
                 if (taskQueue.TryDequeue(out string file) && file != null)
-                {
+                {     
                     Copy(file, dest);     
                 }
             }
+            inWorkThreads[Convert.ToInt32(Thread.CurrentThread.Name)] = false;
         }
 
         private void Copy(string file, string dest)

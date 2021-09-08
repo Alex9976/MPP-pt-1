@@ -25,7 +25,7 @@ class Program
             NumberOfThreads = Convert.ToInt32(args[2]);
         }
 
-        TaskQueue TaskQueue = new TaskQueue(Source, Dest, NumberOfThreads);
+        TaskQueue TaskQueue = new TaskQueue(Dest, NumberOfThreads);
 
         string[] files;
         files = Directory.GetFiles(Source);
@@ -38,9 +38,9 @@ class Program
         while (TaskQueue.taskQueue.Count > 0) { }
 
         TaskQueue.AbortAllTreads();
-        
-        Console.WriteLine($"{files.Length} files copied");
 
-        //TaskQueue.AbortAllTreads();
+        while (TaskQueue.CheckWorkThreads()) { }
+        
+        Console.WriteLine($"{TaskQueue.copiedFiles} files copied");
     }
 }
