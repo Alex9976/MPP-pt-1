@@ -48,6 +48,10 @@ namespace Lab1
                 {
                     task();
                 }
+                else
+                {
+                    Thread.Sleep(50);
+                }
             }
         }
     }
