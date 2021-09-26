@@ -24,10 +24,10 @@ namespace Lab2
 
         ~OSHandle()
         {
-            Finalize(false);
+            Dispose(false);
         }
 
-        private void Finalize(bool disposing)
+        private void Dispose(bool disposing)
         {
             mutex.Lock();
 
@@ -47,7 +47,7 @@ namespace Lab2
 
         public void Dispose()
         {
-            Finalize(true);
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
     }
