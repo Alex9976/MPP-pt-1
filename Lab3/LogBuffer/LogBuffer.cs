@@ -8,50 +8,57 @@ namespace LogBuffer
 {
     public class LogBuffer
     {
-        private static List<string> _buffer = new List<string>();
-        private static object _lock = new object();
-        private static object _writeToFileLock = new object();
-        private Thread _thread;
-        private static int BUFFER_LENGTH = 20;
+        private List<string> _logList = new List<string>();
+        private object _lock = new object();
+        private object _writeToFileLock = new object();
+        private int _listLimit = 20;
+        private Timer _timer;
+        private string _path = "D:\\Log.txt";
 
         public LogBuffer()
         {
-            _thread = new Thread(Timer);
-            _thread.IsBackground = true;
+            _timer = new Timer(new TimerCallback(Flush), null, 0, 2000);
         }
 
-        ~LogBuffer()
+        public LogBuffer(string path, int listlimit, int period)
         {
-            _thread.IsBackground = false;
+            _listLimit = listlimit;
+            _path = path;
+            _timer = new Timer(new TimerCallback(Flush), null, 0, period);
         }
 
-        public void Timer()
+        public void Flush(object state)
         {
-            while (Thread.CurrentThread.IsBackground)
-            {
-                Thread.Sleep(2000);
-                Flush();
-            }
+            Write();
         }
 
         public void Add(string item)
         {
+            bool isOverflow = false;
             lock (_lock)
             {
-                _buffer.Add(item);
-                if (_buffer.Count >= BUFFER_LENGTH)
-                {
-                    Flush();
-                }
+                _logList.Add(item);
+                isOverflow = _logList.Count >= _listLimit;
+            }
+
+            if (isOverflow)
+            {
+                Write();
             }
         }
 
-        private void Flush()
+        private void Write()
         {
+            List<string> _buffer = null;
             lock (_lock)
             {
-                File.AppendAllLines("D:\\Log.txt", _buffer);
-                _buffer.Clear();
+                _buffer = new List<string>(_logList);
+                _logList.Clear();
+            }
+
+            lock (_writeToFileLock)
+            {
+                File.AppendAllLines(_path, _buffer);
             }
         }
     }

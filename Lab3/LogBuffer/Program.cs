@@ -17,14 +17,16 @@ namespace LogBuffer
                 thread.IsBackground = true;
                 thread.Start();
             }
-            Thread.Sleep(10000);
+            Thread.Sleep(5000);
         }
 
         public static void WriteInfo()
         {
             while (Thread.CurrentThread.IsBackground)
             {
-                logBuffer.Add($"Thread {Thread.CurrentThread.Name} write string");
+                String message = $"Thread {Thread.CurrentThread.Name} write string on {DateTime.Now}";
+                Console.WriteLine(message);
+                logBuffer.Add(message);                
                 Thread.Sleep(200);
             }
         }
