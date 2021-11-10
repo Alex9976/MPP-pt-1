@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace EventManager
 {
@@ -8,7 +9,7 @@ namespace EventManager
     {
         public static void Main(string[] args)
         {
-            TaskQueue.TaskDelegate[] delegates = new TaskQueue.TaskDelegate[] { Action, Action, Action, Action, Action, Action, Action };
+            Action[] delegates = new Action[] { Action, Action, Action, Action, Action, Action, Action };
             Parallel.WaitAll(delegates);
             Console.WriteLine("Done");
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,21 +8,31 @@ using System.Threading.Tasks;
 namespace EventManager
 {
     internal class Parallel
-    {     
-        private static TaskQueue _queue = new TaskQueue(3);
+    {
+        static int runningCount;
+        static object sync = new object();
 
-        ~Parallel()
+        public static void WaitAll(Action[] delegates)
         {
-            _queue.AbortAllTreads();
+            runningCount = delegates.Length;
+            foreach (Action action in delegates)
+                ThreadPool.QueueUserWorkItem(Execute, action);
+            lock (sync)
+                if (runningCount > 0)
+                    Monitor.Wait(sync);
         }
 
-        public static void WaitAll(TaskQueue.TaskDelegate[] delegates)
+        private static void Execute(object state)
         {
-            foreach (TaskQueue.TaskDelegate d in delegates)
-            {      
-                _queue.EnqueueTask(d);
+            var action = (Action)state;
+            action();
+            lock (sync)
+            {
+                runningCount--;
+                if (runningCount == 0)
+                    Monitor.Pulse(sync);
             }
-            _queue.Wait();
         }
+
     }
 }
