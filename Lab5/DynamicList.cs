@@ -32,16 +32,15 @@ namespace Lab5
 
         public void Add(T element)
         {
-            if (_currentLength == _innerArrayLength)
-            {
-                _innerArrayLength = _innerArrayLength == 0 ? 4 : _innerArrayLength * 2;
-                T[] copy = new T[_innerArrayLength];
-                Array.Copy(_innerArray, copy, _currentLength);
-                _innerArray = copy;
-            }
-
             lock (_lock)
             {
+                if (_currentLength == _innerArrayLength)
+                {
+                    _innerArrayLength = _innerArrayLength == 0 ? 4 : _innerArrayLength * 2;
+                    T[] copy = new T[_innerArrayLength];
+                    Array.Copy(_innerArray, copy, _currentLength);
+                    _innerArray = copy;
+                }
                 _innerArray[_currentLength++] = element;
             }
         }
@@ -83,6 +82,7 @@ namespace Lab5
             lock (_lock)
             {
                 _innerArray = new T[0];
+                _currentLength = 0;
             }
         }
 
